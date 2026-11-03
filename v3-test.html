@@ -627,17 +627,29 @@
     NM: { label: 'รายละเอียดเหตุการณ์', ph: 'เกิดอะไรขึ้น สาเหตุคืออะไร และอะไรทำให้ไม่เกิดการบาดเจ็บ...' },
     RP: { label: 'รายละเอียดเรื่องที่แจ้ง/ข้อเสนอแนะ', ph: 'อธิบายสิ่งที่ชำรุด หรือข้อเสนอแนะการปรับปรุง...' }
   };
-  function subjectRows(r) {
+  // masked = true → เซ็นเซอร์นามสกุลของผู้ถูกรายงาน/ผู้ประสบเหตุ (ใช้ในหน้า Dashboard สาธารณะ)
+  function subjectRows(r, masked) {
     const t = typeOf(r);
-    if (t === 'UA') return [['ผู้ปฏิบัติงาน', r.workerName], ['ชุดงาน/หน่วยงาน', r.workerUnit]];
+    const nm = v => masked ? censorNames(v) : v;
+    if (t === 'UA') return [['ผู้ปฏิบัติงาน', nm(r.workerName)], ['ชุดงาน/หน่วยงาน', r.workerUnit]];
     if (t === 'UC') return [['พื้นที่/สถานที่ที่ตรวจพบ', r.location]];
-    if (t === 'NM') return [['ผู้ประสบเหตุ', r.victimName], ['สถานที่เกิดเหตุ', r.location]];
+    if (t === 'NM') return [['ผู้ประสบเหตุ', nm(r.victimName)], ['สถานที่เกิดเหตุ', r.location]];
     return [['พื้นที่/สถานที่ที่ตรวจพบ', r.location], ['หน่วยงานที่รับผิดชอบ (ผู้แจ้งระบุ)', r.respUnitName]];
   }
-  function subjectText(r) { return subjectRows(r).map(p => p[0] + ': ' + (p[1] || '-')).join(' · '); }
-  function subjectHtml(r, cls) {
+  function subjectText(r, masked) { return subjectRows(r, masked).map(p => p[0] + ': ' + (p[1] || '-')).join(' · '); }
+  function subjectHtml(r, cls, masked) {
     return '<div class="' + (cls || 'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm') + '">' +
-      subjectRows(r).map(p => '<div><strong>' + esc(p[0]) + ':</strong> ' + esc(p[1] || '-') + '</div>').join('') + '</div>';
+      subjectRows(r, masked).map(p => '<div><strong>' + esc(p[0]) + ':</strong> ' + esc(p[1] || '-') + '</div>').join('') + '</div>';
+  }
+  // หน้า Dashboard: คนทั่วไปเห็นนามสกุลแบบเซ็นเซอร์ · Admin เห็นชื่อเต็ม
+  function maskPublic() { return !state.isAdmin; }
+  function pubName(v) { return maskPublic() ? censorNames(v) : (v || ''); }
+  // ข้อความอิสระ (รายละเอียด/หมายเหตุ/เหตุผล): ถ้าพิมพ์นามสกุลผู้ถูกรายงาน/ผู้ประสบเหตุไว้ ก็เซ็นเซอร์ด้วย
+  function pubText(v, r) {
+    let s = String(v == null ? '' : v);
+    if (!s || !maskPublic()) return s;
+    nameMaskPairs(r).forEach(p => { s = s.split(p[0]).join(p[1]); });
+    return s;
   }
 
   // ── ขั้นตอนปิดงานของหัวหน้าหน่วยงาน แยกตามประเภท ──
@@ -863,6 +875,43 @@
     const keep = /[฀-๿]/.test(last) ? firstSyllable(last) : last.slice(0, Math.min(3, last.length - 1));
     return parts.slice(0, -1).join(' ') + ' ' + keep + '***';
   }
+  // ช่องชื่อผู้ถูกรายงาน/ผู้ประสบเหตุเป็นช่องพิมพ์อิสระ — อาจมีหลายคน ("นายก ข, นายค ง") หรือมีตำแหน่งต่อท้าย ("นายก ข พชง.7")
+  // → เซ็นเซอร์นามสกุลทุกคน: คำที่ 2 ของแต่ละคน (คนใหม่เริ่มที่คำนำหน้า/ตัวคั่น , / และ กับ)
+  const PFX_ONLY_RE = /^(นางสาว|น\.ส\.|นาง|นาย|ว่าที่|ร\.ต\.(ญ\.)?|ว่าที่ร\.ต\.(ญ\.)?|ดร\.|mr\.?|mrs\.?|ms\.?|miss)$/i;
+  const PFX_START_RE = /^(นางสาว|น\.ส\.|นาง|นาย|ว่าที่|ดร\.|mr\.|mrs\.|ms\.)/i;
+  const NAME_SEP_RE = /^([,，、;\/+&]|และ|กับ)$/;
+  function maskWord(w) {
+    if (w.length <= 1) return w;
+    return (/[฀-๿]/.test(w) ? firstSyllable(w) : w.slice(0, Math.min(3, w.length - 1))) + '***';
+  }
+  function isNameWord(w) { return w.length > 1 && !/[\d.()\[\]{}:#@*_=<>"]/.test(w); }
+  function censorNames(text, pairs) {
+    const s = String(text == null ? '' : text).replace(/(\S)(และ|กับ)(?=(นางสาว|น\.ส\.|นาง|นาย))/g, '$1 $2 ');
+    if (!s.trim()) return s;
+    let pos = 0, pend = false;
+    return s.replace(/[^\s,，、;\/+&]+|[,，、;\/+&]/g, w => {
+      if (NAME_SEP_RE.test(w)) { pos = 0; pend = false; return w; }
+      if (PFX_ONLY_RE.test(w)) { pos = 0; pend = true; return w; }      // คำนำหน้าเว้นวรรคแยก
+      if (pend) { pend = false; pos = 1; return w; }                     // ชื่อต้นหลังคำนำหน้า
+      if (pos !== 1 && PFX_START_RE.test(w)) { pos = 1; return w; }      // คนใหม่ (คำนำหน้าติดชื่อ)
+      if (!isNameWord(w)) { pos = 0; return w; }                         // ตำแหน่ง/ตัวเลข/วงเล็บ → จบคนนี้
+      if (pos % 2 === 1) {
+        const m = maskWord(w);
+        if (pairs && m !== w) pairs.push([w, m]);
+        pos++;
+        return m;
+      }
+      pos++;
+      return w;
+    });
+  }
+  // นามสกุลของผู้ถูกรายงาน/ผู้ประสบเหตุในใบงานนี้ (ใช้เซ็นเซอร์ในข้อความอิสระ) — ยาวก่อน, ไม่เอาคำสั้นเกินไป
+  function nameMaskPairs(r) {
+    const pairs = [];
+    censorNames(r && r.workerName, pairs);
+    censorNames(r && r.victimName, pairs);
+    return pairs.filter(p => p[0].length >= 3).sort((a, b) => b[0].length - a[0].length);
+  }
   // ดัชนีค้นหาสาธารณะ: รหัส + ชื่อที่เซ็นเซอร์นามสกุลแล้ว + ตำแหน่ง + สังกัด
   function lookupOf(p) {
     return {
@@ -871,6 +920,12 @@
       position: String((p && p.position) || '').trim(),
       department: String((p && p.department) || '').trim()
     };
+  }
+
+  // คีย์ชื่อแบบเซ็นเซอร์ ใช้จับคู่ชื่อเต็มกับชื่อที่เซ็นเซอร์แล้ว (ชื่อที่ไม่มีนามสกุลไม่ใช้จับคู่)
+  function maskKey(full) {
+    const c = censorName(full);
+    return /\*\*\*$/.test(c) ? normName(c) : '';
   }
 
   // ── ทะเบียนรายชื่อ ──
@@ -951,13 +1006,14 @@
   }
   function peopleIndex() {
     if (emp._ix && emp._ixSrc === emp.people) return emp._ix;
-    const ix = { byKey: {}, byEmp: {}, byNorm: {} };
+    const ix = { byKey: {}, byEmp: {}, byNorm: {}, byMask: {} };
     Object.entries(emp.people || {}).forEach(([oid, m]) => {
       Object.entries(m || {}).forEach(([key, p]) => {
         if (!p) return;
         ix.byKey[key] = { oid, p };
         const e = String(p.empId || '').trim(); if (e) (ix.byEmp[e] = ix.byEmp[e] || []).push(key);
         const n = normName(p.fullName); if (n) (ix.byNorm[n] = ix.byNorm[n] || []).push(key);
+        const mk = maskKey(p.fullName); if (mk) (ix.byMask[mk] = ix.byMask[mk] || []).push(key);
       });
     });
     emp._ix = ix; emp._ixSrc = emp.people;
@@ -988,6 +1044,8 @@
     if (r.reporterKey && ix.byKey[r.reporterKey]) key = r.reporterKey;
     if (!key && r.reporterEmpId) { const a = ix.byEmp[String(r.reporterEmpId).trim()]; if (a && a.length === 1) key = a[0]; }
     if (!key && r.reporterSource !== 'registry') { const a = ix.byNorm[normName(r.reporterName)]; if (a && a.length === 1) key = a[0]; }
+    // ชื่อเต็มในใบงาน กับชื่อในทะเบียนที่เซ็นเซอร์นามสกุลไว้ (เช่น “สมชาย ใจดี” ↔ “สมชาย ใจ***”) — จับคู่เมื่อตรงกันคนเดียวเท่านั้น
+    if (!key && r.reporterSource !== 'registry') { const a = ix.byMask[maskKey(r.reporterName)]; if (a && a.length === 1) key = a[0]; }
     if (key) {
       const h = ix.byKey[key], p = h.p;
       return { id: 'emp:' + key, key, oid: h.oid, name: p.fullName || '-', empId: p.empId || '', position: p.position || '',
@@ -2367,8 +2425,7 @@
           if (seen[k] !== undefined) { fileRows[seen[k]] = rec; dupFile++; continue; }
           seen[k] = fileRows.length; fileRows.push(rec);
         }
-        const masked = fileRows.filter(r => /\*{2,}/.test(r.fullName)).length;
-        if (masked) { alert('❌ ไฟล์นี้มีชื่อที่ถูกเซ็นเซอร์ (***) ' + masked + ' แถว\n\nกรุณาส่งออกจากระบบต้นทางแบบ “ไม่เซ็นเซอร์นามสกุล” แล้วนำเข้าใหม่'); return; }
+        const masked = fileRows.filter(r => /\*{2,}/.test(r.fullName)).length;   // ชื่อที่เซ็นเซอร์นามสกุลมาแล้ว (ใช้ได้ — จับคู่ด้วยรหัสเป็นหลัก)
         if (!fileRows.length) { alert('ไม่พบรายชื่อในไฟล์'); return; }
         const ix = peopleIndex();
         const cur = peopleList(oid);
@@ -2390,7 +2447,7 @@
         });
         const missing = cur.filter(p => !touched[p.key]);
         if (!add.length && !upd.length && !missing.length) { toast('ข้อมูลในไฟล์ตรงกับระบบอยู่แล้ว (' + same + ' คน)'); return; }
-        rosterState.plan = { oid, add, upd, same, missing, noId, dupFile, total: fileRows.length };
+        rosterState.plan = { oid, add, upd, same, missing, noId, dupFile, masked, total: fileRows.length };
         showImportPlan();
       } catch (ex) { alert('อ่านไฟล์ไม่สำเร็จ: ' + ex.message); }
     };
@@ -2404,7 +2461,8 @@
     const tbl = rows => '<div class="ur-tblwrap" style="max-height:190px"><table class="ur-tbl"><tbody>' + rows + '</tbody></table></div>';
     let b = '<div class="ur-plan-grid">' + card('เพิ่มใหม่', P.add.length, '#0D8577', '#E1F4F1') + card('ข้อมูลเปลี่ยน', P.upd.length, '#C2610C', '#FDF0E2') +
       card('เหมือนเดิม', P.same, '#5F6368', '#F1F3F4') + card('ไม่มีในไฟล์', P.missing.length, '#7B1FA2', '#F5EAFA') + '</div>';
-    if (P.noId || P.dupFile) b += '<div class="ur-msg i" style="display:block">' + (P.dupFile ? 'ไฟล์มีรหัสซ้ำกันเอง ' + P.dupFile + ' แถว — ใช้แถวล่างสุดเป็นหลัก<br>' : '') +
+    if (P.noId || P.dupFile || P.masked) b += '<div class="ur-msg i" style="display:block">' + (P.dupFile ? 'ไฟล์มีรหัสซ้ำกันเอง ' + P.dupFile + ' แถว — ใช้แถวล่างสุดเป็นหลัก<br>' : '') +
+      (P.masked ? 'ชื่อในไฟล์เซ็นเซอร์นามสกุลแล้ว ' + P.masked + ' แถว — ใช้ได้ตามปกติ ระบบจับคู่ผู้รายงานด้วยรหัสประจำตัวเป็นหลัก<br>' : '') +
       (P.noId ? 'มี ' + P.noId + ' แถวที่ไม่มีรหัสประจำตัว — คนกลุ่มนี้จะค้นหาด้วยรหัสไม่ได้ จนกว่าจะใส่รหัส' : '') + '</div>';
     if (P.add.length) b += '<div class="ur-lbl sm" style="margin-top:12px">เพิ่มใหม่ ' + P.add.length + ' คน</div>' +
       tbl(P.add.slice(0, 100).map(a => '<tr><td class="ur-mono" style="width:100px">' + esc(a.empId || '—') + '</td><td><b>' + esc(a.fullName) + '</b></td><td class="muted">' + esc(a.position || '—') + '</td></tr>').join(''));
@@ -2866,7 +2924,7 @@
     const tf = dashboardState.typeFilter || 'all';
     if (tf !== 'all') list = list.filter(r => typeOf(r) === tf);
     const q = (dashboardState.searchQuery || '').trim().toLowerCase();
-    if (q) list = list.filter(r => [r.reportNumber, r.workerName, r.workerUnit, r.victimName, r.location, r.description, r.assignedTo, r.respUnitName]
+    if (q) list = list.filter(r => [r.reportNumber, pubName(r.workerName), r.workerUnit, pubName(r.victimName), r.location, pubText(r.description, r), r.assignedTo, r.respUnitName]
       .some(v => String(v == null ? '' : v).toLowerCase().indexOf(q) >= 0));
     return { list: list, base: base };
   }
@@ -2931,9 +2989,9 @@
         '<div class="ur-row" style="' + typeVars(typeOf(r)) + '" role="button" tabindex="0" onclick="showReportDetailModal(' + ja(r.id) + ')" onkeydown="if(event.key===\'Enter\')showReportDetailModal(' + ja(r.id) + ')">' +
           '<div style="flex:1;min-width:0">' +
             '<div class="ur-row-h"><b class="ur-mono">' + esc(r.reportNumber || '-') + '</b>' + typeChip(r, true) + statusChip(r) + '</div>' +
-            '<div class="ur-row-s">' + esc(subjectText(r)) + '</div>' +
+            '<div class="ur-row-s">' + esc(subjectText(r, maskPublic())) + '</div>' +
             '<div class="ur-row-s muted">' + ic('building', 13) + ' ' + esc(r.assignedTo || 'ยังไม่มอบหมาย') + ' · พบเมื่อ ' + esc(fmtDate(r.incidentDate)) + '</div>' +
-            (r.status === 'rejected' ? '<div class="ur-row-s" style="color:#B91C1C">เหตุผลที่ไม่รับ: ' + esc(r.rejectedReason || '-') + '</div>' : '') +
+            (r.status === 'rejected' ? '<div class="ur-row-s" style="color:#B91C1C">เหตุผลที่ไม่รับ: ' + esc(pubText(r.rejectedReason, r) || '-') + '</div>' : '') +
           '</div>' +
           '<div class="ur-row-a">' +
             '<span class="ur-btn ghost xs">' + ic('search', 13) + ' ดู</span>' +
@@ -2986,7 +3044,7 @@
     const top = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
     dashboardState.chartInstances[canvasId] = new Chart(ctx, {
       type: 'bar',
-      data: { labels: top.map(x => x[0]), datasets: [{ label: 'จำนวนครั้ง', data: top.map(x => x[1]), backgroundColor: '#EF4444', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
+      data: { labels: top.map(x => pubName(x[0]) || x[0]), datasets: [{ label: 'จำนวนครั้ง', data: top.map(x => x[1]), backgroundColor: '#EF4444', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
       options: horizontalBarOptions('Top 10 ผู้ถูกรายงานบ่อย (Unsafe Action)')
     });
   }
@@ -3020,17 +3078,17 @@
         o['ผู้รายงาน'] = reporterDisplay(r);
       }
       Object.assign(o, {
-        'ผู้ถูกรายงาน/ผู้ประสบเหตุ': t === 'UA' ? (r.workerName || '') : t === 'NM' ? (r.victimName || '') : '',
+        'ผู้ถูกรายงาน/ผู้ประสบเหตุ': t === 'UA' ? pubName(r.workerName) : t === 'NM' ? pubName(r.victimName) : '',
         'ชุดงาน/หน่วยงานผู้ถูกรายงาน': t === 'UA' ? (r.workerUnit || '') : '',
         'พื้นที่/สถานที่': r.location || '',
-        'รายละเอียด': r.description || '',
+        'รายละเอียด': pubText(r.description, r),
         'สถานะ': STATUS_TEXT[r.status] || '',
         'มอบหมายให้': r.assignedTo || '',
         'วันที่มอบหมาย': r.assignedAt ? new Date(r.assignedAt).toLocaleString('th-TH') : '',
         'การตอบรับ (แจ้งซ่อม)': t === 'RP' && r.repairResponse ? (REPAIR_RESP[r.repairResponse] || {}).t || '' : '',
         'วันที่แนบรูปแก้ไข': r.resolvedAt ? new Date(r.resolvedAt).toLocaleString('th-TH') : '',
         'วันที่อนุมัติ': r.approvedAt ? new Date(r.approvedAt).toLocaleString('th-TH') : '',
-        'เหตุผลที่ไม่รับ': r.status === 'rejected' ? (r.rejectedReason || '') : ''
+        'เหตุผลที่ไม่รับ': r.status === 'rejected' ? pubText(r.rejectedReason, r) : ''
       });
       return o;
     });
@@ -3059,23 +3117,29 @@
       '<div><strong>วันที่พบเหตุการณ์:</strong> ' + esc(fmtDate(r.incidentDate)) + '</div>' +
       (state.isAdmin ? '<div><strong>วันที่รายงาน:</strong> ' + esc(fmtDT(r.createdAt)) + '</div><div><strong>ผู้รายงาน:</strong> ' + esc(reporterDisplay(r)) + ' ' + reporterChip(r) + '</div>' : '') +
       '</div>');
-    b += box(t === 'UA' ? '👤 ผู้ถูกรายงาน' : t === 'NM' ? '👤 ผู้ประสบเหตุ / สถานที่' : '📍 พื้นที่/สถานที่', subjectHtml(r, 'ur-subject'));
-    b += box('📝 ' + esc(DESC_SPEC[t].label), '<div style="white-space:pre-wrap">' + esc(r.description || '-') + '</div>');
+    b += box(t === 'UA' ? '👤 ผู้ถูกรายงาน' : t === 'NM' ? '👤 ผู้ประสบเหตุ / สถานที่' : '📍 พื้นที่/สถานที่', subjectHtml(r, 'ur-subject', maskPublic()));
+    b += box('📝 ' + esc(DESC_SPEC[t].label), '<div style="white-space:pre-wrap">' + esc(pubText(r.description, r) || '-') + '</div>');
     if (imgs.length) b += box('📷 รูปภาพประกอบ (' + imgs.length + ' รูป)', detailImgs(imgs, 'รูปประกอบ', num));
     if (r.assignedTo) {
       b += box('🏢 หน่วยงานรับผิดชอบ', '<div><strong>หน่วยงาน:</strong> ' + esc(r.assignedTo) + '</div><div><strong>มอบหมายเมื่อ:</strong> ' + esc(fmtDT(r.assignedAt)) + '</div>' +
         repairRespHtml(r) +
-        (RESOLVE_SPEC[t].print ? '<button class="ur-btn block" style="--tc:#2563EB;margin-top:10px" onclick="printWarningLetter(' + ja(r.id) + ')">' + ic('print', 16) + ' พิมพ์ใบแจ้งเตือน</button>' +
-          '<p class="ur-hint" style="text-align:center">พิมพ์ได้ตลอดเวลา แม้จะแนบรูปแก้ไขแล้ว</p>' : ''));
+        (RESOLVE_SPEC[t].print && (state.isAdmin || unitAuthed()) ? '<button class="ur-btn block" style="--tc:#2563EB;margin-top:10px" onclick="printWarningLetter(' + ja(r.id) + ')">' + ic('print', 16) + ' พิมพ์ใบแจ้งเตือน</button>' +
+          '<p class="ur-hint" style="text-align:center">พิมพ์ได้ตลอดเวลา แม้จะแนบรูปแก้ไขแล้ว</p>'
+          : RESOLVE_SPEC[t].print ? '<p class="ur-hint" style="margin-top:8px">' + ic('lock', 13) + ' ใบแจ้งเตือนมีชื่อเต็ม — พิมพ์ได้จากเมนู “สำหรับ หัวหน้าหน่วยงาน” (ใส่รหัสผ่าน) หรือ Admin</p>' : ''));
     }
     const groups = resolveGroups(r);
+    // ใบแจ้งเตือนที่ลงนามแล้วมีชื่อเต็ม+ลายเซ็น → คนทั่วไปเห็นแค่ว่าแนบแล้ว (ดูรูปได้ที่หน้า Admin / หัวหน้าหน่วยงาน)
+    const lockLetters = maskPublic() && RESOLVE_SPEC[t].print;
     if (groups.length) {
-      b += box('🔧 หลักฐานการแก้ไข', groups.map(g => '<div class="ur-attach-t" style="margin-top:6px">' + esc(g.t) + ' (' + g.imgs.length + ' รูป)</div>' + detailImgs(g.imgs, g.k === 'fix' ? 'รูปหลังแก้ไข' : 'รูปแก้ไข', num)).join('') +
-        (r.resolveNote ? '<div style="margin-top:8px"><strong>หมายเหตุ:</strong> ' + esc(r.resolveNote) + '</div>' : '') +
+      b += box('🔧 หลักฐานการแก้ไข', groups.map(g => '<div class="ur-attach-t" style="margin-top:6px">' + esc(g.t) + ' (' + g.imgs.length + ' รูป)</div>' +
+          (lockLetters && g.k !== 'fix'
+            ? '<p class="ur-hint" style="margin:2px 0 6px">' + ic('lock', 13) + ' แนบแล้ว — มีชื่อเต็มและลายเซ็น ดูได้ที่หน้า Admin หรือเมนู “สำหรับ หัวหน้าหน่วยงาน”</p>'
+            : detailImgs(g.imgs, g.k === 'fix' ? 'รูปหลังแก้ไข' : 'รูปแก้ไข', num))).join('') +
+        (r.resolveNote ? '<div style="margin-top:8px"><strong>หมายเหตุ:</strong> ' + esc(pubText(r.resolveNote, r)) + '</div>' : '') +
         '<div><strong>แนบรูปเมื่อ:</strong> ' + esc(fmtDT(r.resolvedAt)) + '</div>', 'ok');
     }
     if (r.status === 'approved') b += box('✅ อนุมัติปิดงาน', '<div><strong>อนุมัติเมื่อ:</strong> ' + esc(fmtDT(r.approvedAt)) + '</div>', 'ok');
-    if (r.status === 'rejected') b += box('❌ ไม่รับลงทะเบียน', '<div><strong>เหตุผล:</strong> ' + esc(r.rejectedReason || '-') + '</div>', 'bad');
+    if (r.status === 'rejected') b += box('❌ ไม่รับลงทะเบียน', '<div><strong>เหตุผล:</strong> ' + esc(pubText(r.rejectedReason, r) || '-') + '</div>', 'bad');
     openModal({ id: 'reportDetailModal', wide: true, title: '📋 รายละเอียดรายงาน', sub: esc(T.safety ? T.en + ' (' + T.th + ')' : T.th), style: typeVars(t),
       body: b,
       foot: (state.isAdmin ? '<button class="ur-btn danger" onclick="closeModal(\'reportDetailModal\');showDeleteModal(' + ja(r.id) + ')">' + ic('trash', 15) + ' ลบ</button><div style="flex:1"></div>' : '') +
@@ -4261,6 +4325,7 @@
     const report = state.reports.find(r => r.id === reportId);
     if (!report) return;
     if (!RESOLVE_SPEC[typeOf(report)].print) { alert('รายงานประเภทนี้ไม่มีใบแจ้งเตือน'); return; }
+    if (!state.isAdmin && !unitAuthed()) { alert('ใบแจ้งเตือนมีชื่อเต็ม — พิมพ์ได้จากเมนู “สำหรับ หัวหน้าหน่วยงาน” (ใส่รหัสผ่าน) หรือ Admin'); return; }
     if (isMobileDevice()) await downloadWarningLetterPDF(report);   // มือถือ: สร้าง PDF
     else printWarningLetterDesktop(report);                          // คอมพิวเตอร์: หน้าต่างพิมพ์
   }
