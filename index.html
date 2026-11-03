@@ -64,16 +64,18 @@
     .ur-c-indigo{--tc:#4338CA;--tb:#E0E7FF;--tg:rgba(67,56,202,.28);--td:#312E81}
 
     /* ── หัวหน้าแรก ── */
+    /* พื้นหัวสีเขียวเข้ม (สีสัญลักษณ์ความปลอดภัย) ให้ปุ่ม “แจ้งรายงาน” สีแดงเด่น — ใช้เขียวเข้มลดความสด ไม่ให้แดง-เขียวตัดกันจนแสบตา */
     .ur-hero{position:relative;overflow:hidden;color:#fff;padding:30px 16px 92px;
-      background:linear-gradient(135deg,#F05252 0%,#DC2626 45%,#9B1C1C 100%)}
-    .ur-hero::before{content:"";position:absolute;right:-90px;top:-130px;width:330px;height:330px;border-radius:50%;background:rgba(255,255,255,.10)}
-    .ur-hero::after{content:"";position:absolute;left:-70px;bottom:-150px;width:270px;height:270px;border-radius:50%;background:rgba(255,255,255,.07)}
+      background:radial-gradient(900px 340px at 88% -12%,rgba(52,211,153,.20),transparent 62%),
+                 linear-gradient(135deg,#04261B 0%,#065F46 55%,#033324 100%)}
+    .ur-hero::before{content:"";position:absolute;right:-90px;top:-130px;width:330px;height:330px;border-radius:50%;background:rgba(255,255,255,.06)}
+    .ur-hero::after{content:"";position:absolute;left:-70px;bottom:-150px;width:270px;height:270px;border-radius:50%;background:rgba(255,255,255,.045)}
     .ur-hero-in{position:relative;z-index:1;max-width:760px;margin:0 auto;display:flex;align-items:center;gap:16px}
     .ur-logo{width:74px;height:74px;border-radius:22px;background:#fff;display:grid;place-items:center;flex:none;box-shadow:0 10px 24px rgba(0,0,0,.20)}
     .ur-logo img{width:60px;height:60px;object-fit:contain}
-    .ur-hero-k{font-size:12.5px;font-weight:600;opacity:.88}
+    .ur-hero-k{font-size:12.5px;font-weight:600;color:#6EE7B7}
     .ur-hero-t{font-size:29px;font-weight:700;line-height:1.15;letter-spacing:-.01em;margin:1px 0 2px}
-    .ur-hero-d{font-size:14.5px;opacity:.93}
+    .ur-hero-d{font-size:14.5px;color:#D1FAE5}
     .ur-wrap{max-width:760px;margin:-62px auto 0;padding:0 16px 40px;position:relative;z-index:2}
     .ur-foot{text-align:center;color:var(--ur-ink3);font-size:12.5px;margin-top:24px;line-height:1.75}
     @media(max-width:480px){.ur-hero{padding:24px 16px 86px}.ur-logo{width:62px;height:62px;border-radius:18px}.ur-logo img{width:50px;height:50px}.ur-hero-t{font-size:25px}.ur-hero-d{font-size:13.5px}}
@@ -111,17 +113,19 @@
       font-size:12px;font-weight:700;display:grid;place-items:center;box-shadow:0 3px 8px rgba(245,158,11,.45)}
     /* การ์ดหลัก (ทึบ) */
     .ur-tile.solid{background:linear-gradient(135deg,#F05252 0%,#DC2626 50%,#B91C1C 100%);border-color:transparent;color:#fff;
-      box-shadow:0 14px 30px -12px rgba(220,38,38,.60);padding:24px 22px 20px}
+      box-shadow:0 18px 38px -14px rgba(220,38,38,.62),inset 0 0 0 1px rgba(255,255,255,.14);padding:24px 22px 20px}
     .ur-tile.solid::before{height:0}
     .ur-tile.solid::after{background:rgba(255,255,255,.14);opacity:1;width:150px;height:150px;right:-50px;top:-55px}
     .ur-tile.solid .ur-tile-ic{background:rgba(255,255,255,.2);box-shadow:none;width:56px;height:56px}
     .ur-tile.solid .ur-tile-t{color:#fff;font-size:22px}
     .ur-tile.solid .ur-tile-d,.ur-tile.solid .ur-tile-k{color:rgba(255,255,255,.9)}
-    .ur-tile.solid .ur-tile-cta{color:#fff}
-    .ur-tile.solid .ur-tile-arrow{background:rgba(255,255,255,.22);color:#fff}
-    .ur-tile.solid:hover{box-shadow:0 20px 40px -14px rgba(220,38,38,.70)}
+    /* “เริ่มรายงาน” เป็นปุ่มขาว ให้เห็นชัดว่ากดได้ */
+    .ur-tile.solid .ur-tile-cta{align-self:flex-start;margin-top:14px;padding:8px 10px 8px 16px;border-radius:999px;background:#fff;color:#B91C1C;
+      font-size:14px;box-shadow:0 6px 16px -6px rgba(127,29,29,.55)}
+    .ur-tile.solid .ur-tile-arrow{background:#FEE2E2;color:#B91C1C}
+    .ur-tile.solid:hover{box-shadow:0 22px 44px -14px rgba(220,38,38,.72),inset 0 0 0 1px rgba(255,255,255,.18)}
     .ur-tile.solid:hover .ur-tile-t{color:#fff}
-    .ur-tile.solid:hover .ur-tile-arrow{background:#fff;color:#DC2626}
+    .ur-tile.solid:hover .ur-tile-arrow{background:#DC2626;color:#fff}
     /* จอเล็ก: การ์ดแนวนอน ประหยัดพื้นที่ */
     @media(max-width:600px){
       .ur-tiles,.ur-tiles.three{grid-template-columns:1fr;gap:12px}
@@ -159,6 +163,7 @@
     .ur-card{background:#fff;border:1px solid var(--ur-line);border-radius:18px;padding:18px;
       box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 26px -18px rgba(0,0,0,.22)}
     .ur-card + .ur-card{margin-top:14px}
+    .grid > .ur-card + .ur-card{margin-top:0}   /* การ์ดกราฟใน grid ให้ขอบบนตรงกัน */
     .ur-sec{display:flex;align-items:center;gap:11px;margin-bottom:16px}
     .ur-sec-ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--tb,#F3F4F6);color:var(--tc,#374151)}
     .ur-sec-t{font-weight:700;font-size:16px;line-height:1.3}
@@ -268,6 +273,23 @@
     .ur-seg button{padding:7px 14px;border-radius:99px;border:1.5px solid var(--ur-line);background:#fff;font-size:13px;font-weight:600;color:var(--ur-ink2);cursor:pointer;transition:all .15s}
     .ur-seg button:hover{border-color:#9CA3AF}
     .ur-seg button.on{background:var(--ur-ink);border-color:var(--ur-ink);color:#fff}
+    .ur-seg-type button.on{background:var(--tc,var(--ur-ink));border-color:var(--tc,var(--ur-ink))}
+    /* Dashboard: สลับหมวด ความปลอดภัย / แจ้งซ่อม */
+    .ur-dsec{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+    .ur-dsec-b{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px solid var(--ur-line);
+      background:#fff;cursor:pointer;color:var(--ur-ink);transition:border-color .15s,background .15s,box-shadow .15s}
+    .ur-dsec-b:hover{border-color:var(--sc)}
+    .ur-dsec-b.on{border-color:var(--sc);background:var(--sb);box-shadow:0 0 0 3px var(--sg)}
+    .ur-dsec-b:focus-visible{outline:3px solid var(--sc);outline-offset:2px}
+    .ur-dsec-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--sb);color:var(--sc)}
+    .ur-dsec-b.on .ur-dsec-ic{background:var(--sc);color:#fff}
+    .ur-dsec-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+    .ur-dsec-tx b{font-size:14.5px}
+    .ur-dsec-tx small{font-size:11.5px;color:var(--ur-ink3)}
+    .ur-dsec-n{font-size:21px;font-weight:700;color:var(--sc)}
+    .ur-dsec-b:not(.on) .ur-dsec-n{color:var(--ur-ink3)}
+    @media(max-width:600px){.ur-dsec{grid-template-columns:1fr;gap:8px}.ur-dsec-b{padding:10px 12px}}
+    .ur-censor{--tc:#4338CA}
 
     /* ── ตาราง ── */
     .ur-tblwrap{border:1px solid var(--ur-line);border-radius:14px;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch}
@@ -549,7 +571,7 @@
   
 
   // ================== v3.0 — ประเภทรายงาน · หน่วยงาน · ทะเบียนรายชื่อ ==================
-  const APP_VERSION = '3.0';
+  const APP_VERSION = '3.1';
 
   // ── หน่วยงาน 10 แห่ง (id ชุดเดียวกับระบบจัดการอุปกรณ์ความปลอดภัยฯ) ──
   const OFFICES = [
@@ -641,8 +663,9 @@
     return '<div class="' + (cls || 'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm') + '">' +
       subjectRows(r, masked).map(p => '<div><strong>' + esc(p[0]) + ':</strong> ' + esc(p[1] || '-') + '</div>').join('') + '</div>';
   }
-  // หน้า Dashboard: คนทั่วไปเห็นนามสกุลแบบเซ็นเซอร์ · Admin เห็นชื่อเต็ม
-  function maskPublic() { return !state.isAdmin; }
+  // หน้าสถิติ (Dashboard / ตารางรางวัล / จับรางวัล / หน้าสรุป): เซ็นเซอร์นามสกุลเสมอ
+  // Admin เอาติ๊ก “เซ็นเซอร์นามสกุล” ออกเพื่อดูชื่อเต็มได้ชั่วคราว (เปิดหน้าใหม่กลับเป็นเซ็นเซอร์)
+  function maskPublic() { return !state.isAdmin || dashboardState.censor !== false; }
   function pubName(v) { return maskPublic() ? censorNames(v) : (v || ''); }
   // ข้อความอิสระ (รายละเอียด/หมายเหตุ/เหตุผล): ถ้าพิมพ์นามสกุลผู้ถูกรายงาน/ผู้ประสบเหตุไว้ ก็เซ็นเซอร์ด้วย
   function pubText(v, r) {
@@ -1006,7 +1029,7 @@
   }
   function peopleIndex() {
     if (emp._ix && emp._ixSrc === emp.people) return emp._ix;
-    const ix = { byKey: {}, byEmp: {}, byNorm: {}, byMask: {} };
+    const ix = { byKey: {}, byEmp: {}, byNorm: {}, byMask: {}, byFirst: {} };
     Object.entries(emp.people || {}).forEach(([oid, m]) => {
       Object.entries(m || {}).forEach(([key, p]) => {
         if (!p) return;
@@ -1014,6 +1037,8 @@
         const e = String(p.empId || '').trim(); if (e) (ix.byEmp[e] = ix.byEmp[e] || []).push(key);
         const n = normName(p.fullName); if (n) (ix.byNorm[n] = ix.byNorm[n] || []).push(key);
         const mk = maskKey(p.fullName); if (mk) (ix.byMask[mk] = ix.byMask[mk] || []).push(key);
+        const sp = splitName(p.fullName), pre = sp.last.replace(/\*+$/, '');
+        if (sp.first && pre) (ix.byFirst[sp.first] = ix.byFirst[sp.first] || []).push({ key, pre, masked: /\*\*\*$/.test(sp.last) });
       });
     });
     emp._ix = ix; emp._ixSrc = emp.people;
@@ -1046,6 +1071,14 @@
     if (!key && r.reporterSource !== 'registry') { const a = ix.byNorm[normName(r.reporterName)]; if (a && a.length === 1) key = a[0]; }
     // ชื่อเต็มในใบงาน กับชื่อในทะเบียนที่เซ็นเซอร์นามสกุลไว้ (เช่น “สมชาย ใจดี” ↔ “สมชาย ใจ***”) — จับคู่เมื่อตรงกันคนเดียวเท่านั้น
     if (!key && r.reporterSource !== 'registry') { const a = ix.byMask[maskKey(r.reporterName)]; if (a && a.length === 1) key = a[0]; }
+    // ทะเบียนที่เซ็นเซอร์ไว้สั้น/ยาวต่างจากสูตรนี้ → ชื่อต้นตรงกัน และนามสกุลในใบงานขึ้นต้นด้วยส่วนที่เหลือในทะเบียน (ต้องตรงคนเดียว)
+    if (!key && r.reporterSource !== 'registry') {
+      const sp = splitName(r.reporterName);
+      if (sp.first && sp.last && sp.last.indexOf('*') < 0) {
+        const a = (ix.byFirst[sp.first] || []).filter(x => x.masked ? sp.last.indexOf(x.pre) === 0 : sp.last === x.pre);
+        if (a.length === 1) key = a[0].key;
+      }
+    }
     if (key) {
       const h = ix.byKey[key], p = h.p;
       return { id: 'emp:' + key, key, oid: h.oid, name: p.fullName || '-', empId: p.empId || '', position: p.position || '',
@@ -2052,7 +2085,7 @@
           '<input type="date" id="adminStartDate" class="ur-inp" value="' + esc(dashboardState.adminFilterStartDate || '') + '">' +
           '<span>ถึง</span><input type="date" id="adminEndDate" class="ur-inp" value="' + esc(dashboardState.adminFilterEndDate || '') + '">' +
           '<button class="ur-btn sm" onclick="applyAdminCustomFilter()">ค้นหา</button></div>' +
-        '<div style="flex:1"></div>' +
+        '<div style="flex:1"></div>' + censorToggleHtml() +
         '<button class="ur-btn sm" onclick="exportAdminReporterStats()" ' + (rows.length ? '' : 'disabled') + '>' + ic('download', 15) + ' Export Excel</button>' +
       '</div>';
     if (!rows.length) {
@@ -2061,7 +2094,7 @@
       h += '<div class="ur-tblwrap"><table class="ur-tbl"><thead><tr><th class="c" style="width:58px">อันดับ</th><th>ชื่อ-นามสกุล</th><th>หน่วยงาน</th>' +
         '<th class="c" style="width:96px">จำนวนครั้ง</th><th class="c" style="width:56px">เหรียญ</th><th style="width:44px"></th></tr></thead><tbody>' +
         shown.map((x, i) => '<tr' + (i < 3 ? ' class="ur-top3"' : '') + '><td class="num">' + (i + 1) + '</td>' +
-          '<td><b>' + esc(x.name) + '</b>' + (x.empId ? ' <span class="ur-hint ur-mono" style="margin:0">' + esc(x.empId) + '</span>' : '') + '</td>' +
+          '<td><b>' + esc(pubName(x.name)) + '</b>' + (x.empId ? ' <span class="ur-hint ur-mono" style="margin:0">' + esc(x.empId) + '</span>' : '') + '</td>' +
           '<td class="muted">' + esc(x.unit || '-') + '</td>' +
           '<td class="c"><span class="ur-chip ok">' + x.count + ' ครั้ง</span></td>' +
           '<td class="c" style="font-size:20px">' + (['🥇', '🥈', '🥉'][i] || '') + '</td>' +
@@ -2076,7 +2109,7 @@
       'หากผู้นั้นรายงานใหม่หลังจากนี้ จะเริ่มนับใหม่ · หน้า “สรุปสถานะจำนวนการรายงาน” ยังนับครบทุกใบ</div></div>';
     if (hiddenList.length) {
       h += '<details class="ur-details"><summary>รายชื่อที่ลบออกจากตารางสถิติ (' + hiddenList.length + ')</summary><div class="ur-tblwrap" style="margin-top:8px"><table class="ur-tbl"><tbody>' +
-        hiddenList.map(x => '<tr><td><b>' + esc(x.name || '-') + '</b><div class="muted">' + esc(x.unit || '') + '</div></td>' +
+        hiddenList.map(x => '<tr><td><b>' + esc(pubName(x.name) || '-') + '</b><div class="muted">' + esc(x.unit || '') + '</div></td>' +
           '<td class="muted">ลบเมื่อ ' + esc(fmtDT(x.hiddenAt)) + (x.count ? ' · ขณะนั้น ' + esc(x.count) + ' ครั้ง' : '') + '</td>' +
           '<td class="c" style="width:110px"><button class="ur-btn ghost xs" onclick="restoreStat(' + ja(x.id) + ')">' + ic('restore', 13) + ' คืนค่า</button></td></tr>').join('') +
         '</tbody></table></div></details>';
@@ -2585,16 +2618,16 @@
     if (Object.values(C).some(x => !x.who.inRegistry && !(x.who.oid && OFC[x.who.oid]))) tabs.push('other');
     return tabs.map(oid => {
       const rows = summaryRows(oid, C);
-      const reg = rows.filter(r => r.inReg).length, active = rows.filter(r => r.total > 0).length, activeReg = rows.filter(r => r.inReg && r.total > 0).length;
+      const reg = rows.filter(r => r.inReg).length, active = rows.filter(r => r.total > 0).length;
       const t = k => rows.reduce((s, r) => s + r[k], 0);
-      return { oid, name: oid === 'other' ? 'อื่นๆ / ภายนอก' : OFC[oid], reg, active, pct: reg ? Math.round(activeReg * 100 / reg) : null, UA: t('UA'), UC: t('UC'), NM: t('NM'), total: t('total') };
+      return { oid, name: oid === 'other' ? 'อื่นๆ / ภายนอก' : OFC[oid], reg, active, UA: t('UA'), UC: t('UC'), NM: t('NM'), total: t('total') };
     });
   }
 
   function summaryTableHtml(rows) {
     const q = summaryState.q.trim().toLowerCase();
     let list = rows;
-    if (q) list = list.filter(r => String(r.name).toLowerCase().indexOf(q) >= 0 || String(r.empId).toLowerCase().indexOf(q) >= 0 || String(r.position).toLowerCase().indexOf(q) >= 0);
+    if (q) list = list.filter(r => String(pubName(r.name)).toLowerCase().indexOf(q) >= 0 || String(r.empId).toLowerCase().indexOf(q) >= 0 || String(r.position).toLowerCase().indexOf(q) >= 0);
     if (summaryState.onlyActive) list = list.filter(r => r.total > 0);
     if (!list.length) return '<div class="ur-empty">' + ic('users', 28) + '<div>' + (rows.length ? 'ไม่พบรายชื่อตามเงื่อนไข' : 'ยังไม่มีรายชื่อในหน่วยงานนี้ — เพิ่มได้ที่เมนู “จัดการรายชื่อ”') + '</div></div>';
     const n = v => '<td class="num' + (v ? '' : ' zero') + '">' + v + '</td>';
@@ -2602,7 +2635,7 @@
       '<th style="width:130px">ตำแหน่ง</th><th class="c" style="width:58px" title="Unsafe Action">UA</th><th class="c" style="width:58px" title="Unsafe Condition">UC</th>' +
       '<th class="c" style="width:58px" title="Near Miss">NM</th><th class="c" style="width:64px">รวม</th></tr></thead><tbody>' +
       list.map((r, i) => '<tr><td class="num" style="color:#9CA3AF">' + (i + 1) + '</td><td class="ur-mono" style="font-size:12.5px">' + esc(r.empId || '-') + '</td>' +
-        '<td><b>' + esc(r.name) + '</b>' + (r.inReg ? '' : ' <span class="ur-chip sm warn">ไม่อยู่ในทะเบียน</span>') + '</td>' +
+        '<td><b>' + esc(pubName(r.name)) + '</b>' + (r.inReg ? '' : ' <span class="ur-chip sm warn">ไม่อยู่ในทะเบียน</span>') + '</td>' +
         '<td class="muted">' + esc([r.position, r.department].filter(Boolean).join(' · ') || '-') + '</td>' +
         n(r.UA) + n(r.UC) + n(r.NM) + '<td class="num"' + (r.total ? ' style="color:#4338CA;font-size:15px"' : '') + '>' + (r.total || '<span class="zero">0</span>') + '</td></tr>').join('') +
       '</tbody></table></div><div class="ur-hint">แสดง ' + list.length + ' คน</div>';
@@ -2631,21 +2664,20 @@
       (S.mode === 'month' ? '<select class="ur-inp" style="width:auto" onchange="summaryState.month=parseInt(this.value,10);render()">' +
         TH_MONTHS.map((m, i) => '<option value="' + i + '"' + (i === S.month ? ' selected' : '') + '>' + m + '</option>').join('') + '</select>' + ysel : '') +
       (S.mode === 'year' ? ysel : '') +
-      '<div style="flex:1"></div><button class="ur-btn sm" onclick="exportSummary()">' + ic('download', 15) + ' Export Excel</button>' +
+      '<div style="flex:1"></div>' + censorToggleHtml() + '<button class="ur-btn sm" onclick="exportSummary()">' + ic('download', 15) + ' Export Excel</button>' +
       '</div><div class="ur-hint">ช่วงเวลา: <b>' + esc(rng ? rng.label : 'ทั้งหมด') + '</b> (ตามวันที่ส่งรายงาน) · นับเฉพาะ UA/UC/NM ที่ จป. รับเรื่องแล้ว · ไม่นับแจ้งซ่อม/ข้อเสนอแนะ และผู้ไม่ประสงค์ออกนาม</div></div>';
 
     // ภาพรวมทุกหน่วยงาน
     const tot = k => ov.reduce((s, o) => s + o[k], 0);
     h += '<div class="ur-card" style="margin-bottom:14px"><div class="ur-sec" style="margin-bottom:10px"><div class="ur-sec-ic">' + ic('chart', 18) + '</div><div><div class="ur-sec-t">ภาพรวมทุกหน่วยงาน</div>' +
       '<div class="ur-sec-s">แตะชื่อหน่วยงานเพื่อดูรายบุคคล</div></div></div>' +
-      '<div class="ur-tblwrap"><table class="ur-tbl"><thead><tr><th>หน่วยงาน</th><th class="c">คนในทะเบียน</th><th class="c">คนที่รายงาน</th><th class="c">% มีส่วนร่วม</th>' +
+      '<div class="ur-tblwrap"><table class="ur-tbl"><thead><tr><th>หน่วยงาน</th><th class="c">คนในทะเบียน</th><th class="c">คนที่รายงาน</th>' +
       '<th class="c">UA</th><th class="c">UC</th><th class="c">NM</th><th class="c">รวม</th></tr></thead><tbody>' +
       ov.map(o => '<tr style="cursor:pointer' + (o.oid === S.oid ? ';background:#EEF2FF' : '') + '" onclick="summaryTab(\'' + o.oid + '\')"><td><b>' + esc(o.name) + '</b></td>' +
         '<td class="num">' + (o.oid === 'other' ? '-' : o.reg) + '</td><td class="num">' + o.active + '</td>' +
-        '<td class="num">' + (o.pct == null ? '-' : '<span class="ur-pct" style="--p:' + o.pct + '">' + o.pct + '%</span>') + '</td>' +
         '<td class="num' + (o.UA ? '' : ' zero') + '">' + o.UA + '</td><td class="num' + (o.UC ? '' : ' zero') + '">' + o.UC + '</td><td class="num' + (o.NM ? '' : ' zero') + '">' + o.NM + '</td>' +
         '<td class="num' + (o.total ? '" style="color:#4338CA"' : ' zero"') + '>' + o.total + '</td></tr>').join('') +
-      '<tr style="background:#F9FAFB"><td><b>รวม</b></td><td class="num">' + tot('reg') + '</td><td class="num">' + tot('active') + '</td><td></td>' +
+      '<tr style="background:#F9FAFB"><td><b>รวม</b></td><td class="num">' + tot('reg') + '</td><td class="num">' + tot('active') + '</td>' +
       '<td class="num">' + tot('UA') + '</td><td class="num">' + tot('UC') + '</td><td class="num">' + tot('NM') + '</td><td class="num" style="color:#4338CA">' + tot('total') + '</td></tr>' +
       '</tbody></table></div></div>';
 
@@ -2658,7 +2690,7 @@
     h += '<div class="ur-card">' +
       '<div class="ur-stats" style="margin-bottom:12px">' +
         adminStat('คนในทะเบียน', S.oid === 'other' ? '-' : cur.reg, '#374151') + adminStat('คนที่รายงานแล้ว', cur.active, '#4338CA') +
-        adminStat('% มีส่วนร่วม', cur.pct == null ? '-' : cur.pct + '%', '#059669') + adminStat('รวมรายงาน', cur.total, '#DC2626') + '</div>' +
+        adminStat('รวมรายงาน', cur.total, '#DC2626') + '</div>' +
       '<div class="ur-filter" style="margin:0 0 12px">' +
         '<div class="ur-ta" style="flex:1;min-width:200px;max-width:380px"><span class="ur-ta-ic">' + ic('search', 17) + '</span>' +
           '<input id="summaryQ" class="ur-inp" placeholder="ค้นหาชื่อ หรือรหัส…" value="' + esc(S.q) + '" oninput="summarySearch(this.value)"></div>' +
@@ -2674,11 +2706,11 @@
     const C = summaryCounts(), rng = summaryRange(), ov = summaryOverview(C);
     const wb = XLSX.utils.book_new();
     const ws0 = XLSX.utils.json_to_sheet(ov.map(o => ({ 'หน่วยงาน': o.name, 'คนในทะเบียน': o.oid === 'other' ? '' : o.reg, 'คนที่รายงาน': o.active,
-      '% มีส่วนร่วม': o.pct == null ? '' : o.pct, 'Unsafe Action': o.UA, 'Unsafe Condition': o.UC, 'Near Miss': o.NM, 'รวม': o.total })));
-    ws0['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 11 }, { wch: 8 }];
+      'Unsafe Action': o.UA, 'Unsafe Condition': o.UC, 'Near Miss': o.NM, 'รวม': o.total })));
+    ws0['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 11 }, { wch: 8 }];
     XLSX.utils.book_append_sheet(wb, ws0, 'ภาพรวม');
     ov.forEach(o => {
-      const rows = summaryRows(o.oid, C).map((r, i) => ({ 'ลำดับ': i + 1, 'รหัสประจำตัว': r.empId, 'ชื่อ-นามสกุล': r.name, 'ตำแหน่ง': r.position, 'สังกัด': r.department,
+      const rows = summaryRows(o.oid, C).map((r, i) => ({ 'ลำดับ': i + 1, 'รหัสประจำตัว': r.empId, 'ชื่อ-นามสกุล': pubName(r.name), 'ตำแหน่ง': r.position, 'สังกัด': r.department,
         'Unsafe Action': r.UA, 'Unsafe Condition': r.UC, 'Near Miss': r.NM, 'รวม': r.total, 'หมายเหตุ': r.inReg ? '' : 'ไม่อยู่ในทะเบียน' }));
       const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ 'ลำดับ': '', 'รหัสประจำตัว': '', 'ชื่อ-นามสกุล': '(ไม่มีรายชื่อ)' }]);
       ws['!cols'] = [{ wch: 7 }, { wch: 14 }, { wch: 30 }, { wch: 18 }, { wch: 12 }, { wch: 13 }, { wch: 15 }, { wch: 10 }, { wch: 7 }, { wch: 16 }];
@@ -2925,32 +2957,59 @@
   }
   
   // ================== Dashboard ==================
+  // แยก 2 หมวดชัดเจน: รายงานด้านความปลอดภัย (UA/UC/NM เลือกดูทีละประเภทได้) · แจ้งซ่อม/ข้อเสนอแนะ (RP)
+  function dashSection() { return dashboardState.section === 'repair' ? 'repair' : 'safety'; }
   function dashboardFiltered() {
     const base = filterReportsByDate(state.reports, dashboardState.filterPeriod, dashboardState.filterStartDate, dashboardState.filterEndDate);
-    let list = base;
-    const tf = dashboardState.typeFilter || 'all';
+    const sec = dashSection();
+    let list = base.filter(r => (typeOf(r) === 'RP') === (sec === 'repair'));
+    const tf = sec === 'safety' && SAFETY_TYPES.indexOf(dashboardState.typeFilter) >= 0 ? dashboardState.typeFilter : 'all';
     if (tf !== 'all') list = list.filter(r => typeOf(r) === tf);
     const q = (dashboardState.searchQuery || '').trim().toLowerCase();
     if (q) list = list.filter(r => [r.reportNumber, pubName(r.workerName), r.workerUnit, pubName(r.victimName), r.location, pubText(r.description, r), r.assignedTo, r.respUnitName]
       .some(v => String(v == null ? '' : v).toLowerCase().indexOf(q) >= 0));
-    return { list: list, base: base };
+    return { list: list, base: base, sec: sec, tf: tf };
   }
-  function setDashType(t) {
-    dashboardState.typeFilter = t;
+  function setDashSection(s) {
+    dashboardState.section = s === 'repair' ? 'repair' : 'safety';
+    dashboardState.typeFilter = 'all';
     dashboardState.currentPage = 1;
     render();
   }
+  function setDashType(t) {
+    if (t === 'RP') return setDashSection('repair');
+    dashboardState.section = 'safety';
+    dashboardState.typeFilter = SAFETY_TYPES.indexOf(t) >= 0 ? t : 'all';
+    dashboardState.currentPage = 1;
+    render();
+  }
+  // ช่องติ๊ก “เซ็นเซอร์นามสกุล” (เฉพาะ Admin — คนทั่วไปเซ็นเซอร์เสมอ) · เปิดหน้าใหม่จะกลับเป็นเซ็นเซอร์
+  function setCensor(on) { dashboardState.censor = !!on; render(); }
+  function censorToggleHtml() {
+    if (!state.isAdmin) return '';
+    return '<label class="ur-check ur-censor"><input type="checkbox"' + (dashboardState.censor !== false ? ' checked' : '') +
+      ' onchange="setCensor(this.checked)"> เซ็นเซอร์นามสกุล</label>';
+  }
 
   function renderDashboard() {
-    const F = dashboardFiltered(), list = F.list;
+    const F = dashboardFiltered(), list = F.list, SEC = F.sec, TF = F.tf;
     const total = list.length;
     const cnt = s => list.filter(r => r.status === s).length;
-    const P = dashboardState.filterPeriod || 'all', TF = dashboardState.typeFilter || 'all';
+    const P = dashboardState.filterPeriod || 'all';
     const q = dashboardState.searchQuery || '';
     const opt = (v, l) => '<option value="' + v + '"' + (P === v ? ' selected' : '') + '>' + l + '</option>';
-    const segBtn = (k, label) => '<button class="' + (TF === k ? 'on' : '') + '" onclick="setDashType(\'' + k + '\')">' + label +
-      ' <span class="ur-mono" style="opacity:.75">' + (k === 'all' ? F.base.length : F.base.filter(r => typeOf(r) === k).length) + '</span></button>';
-    const chart3 = (TF === 'all' || TF === 'UA') ? 'worker' : 'place';
+    const nSafe = F.base.filter(r => typeOf(r) !== 'RP').length, nRep = F.base.length - nSafe;
+    const secBtn = (k, icon, title, sub, n, vars) =>
+      '<button class="ur-dsec-b' + (SEC === k ? ' on' : '') + '" style="' + vars + '" aria-pressed="' + (SEC === k) + '" onclick="setDashSection(\'' + k + '\')">' +
+        '<span class="ur-dsec-ic">' + ic(icon, 20) + '</span>' +
+        '<span class="ur-dsec-tx"><b>' + title + '</b><small>' + sub + '</small></span>' +
+        '<span class="ur-dsec-n ur-mono">' + n + '</span></button>';
+    const chip = (k, label, n, T) => '<button class="' + (TF === k ? 'on' : '') + '"' + (T ? ' style="--tc:' + T.c + '"' : '') +
+      ' onclick="setDashType(\'' + k + '\')">' + label + ' <span class="ur-mono" style="opacity:.75">' + n + '</span></button>';
+    // กราฟที่ 3: UA/ทั้งหมด = ผู้ถูกรายงานบ่อย · UC/NM/แจ้งซ่อม = พื้นที่/สถานที่
+    const chart3 = SEC === 'safety' && (TF === 'all' || TF === 'UA') ? 'worker' : 'place';
+    const placeTitle = SEC === 'repair' ? 'Top 10 พื้นที่/สถานที่ที่แจ้ง' : TF === 'NM' ? 'Top 10 สถานที่เกิดเหตุ (Near Miss)' : 'Top 10 พื้นที่/สถานที่ที่ตรวจพบ (Unsafe Condition)';
+    const word = SEC === 'repair' ? 'เรื่องแจ้งซ่อม/ข้อเสนอแนะ' : TF === 'all' ? 'รายงานด้านความปลอดภัย' : 'รายงาน ' + REPORT_TYPES[TF].chip;
 
     let h = '<div class="ur-page ur-c-violet">' + topBar('Dashboard', 'สถิติและรายงานทั้งหมด', "navigateTo('home')") + '<div class="ur-body">';
     h += '<div class="ur-card">' +
@@ -2962,8 +3021,16 @@
           '<input type="date" id="startDate" class="ur-inp" value="' + esc(dashboardState.filterStartDate || '') + '"><span>ถึง</span>' +
           '<input type="date" id="endDate" class="ur-inp" value="' + esc(dashboardState.filterEndDate || '') + '">' +
           '<button class="ur-btn sm" onclick="applyCustomFilter()">ค้นหา</button></div>' +
+        (state.isAdmin ? '<div style="flex:1"></div>' + censorToggleHtml() : '') +
       '</div>' +
-      '<div class="ur-seg">' + segBtn('all', 'ทุกประเภท') + TYPE_KEYS.map(k => segBtn(k, esc(REPORT_TYPES[k].chip))).join('') + '</div>' +
+      '<div class="ur-dsec" role="group" aria-label="หมวดรายงาน">' +
+        secBtn('safety', 'shield', 'รายงานด้านความปลอดภัย', 'Unsafe Action · Unsafe Condition · Near Miss', nSafe, '--sc:#DC2626;--sb:#FEF2F2;--sg:rgba(220,38,38,.14)') +
+        secBtn('repair', 'wrench', 'แจ้งซ่อม/ข้อเสนอแนะ', 'เรื่องทั่วไป — ไม่นับเป็นสถิติความปลอดภัย', nRep, '--sc:#0F766E;--sb:#F0FDFA;--sg:rgba(15,118,110,.14)') +
+      '</div>' +
+      (SEC === 'safety'
+        ? '<div class="ur-seg ur-seg-type">' + chip('all', 'ทั้ง 3 ประเภท', nSafe, { c: '#1F2937' }) +
+            SAFETY_TYPES.map(k => chip(k, esc(REPORT_TYPES[k].chip), F.base.filter(r => typeOf(r) === k).length, REPORT_TYPES[k])).join('') + '</div>'
+        : '<p class="ur-hint" style="margin:0">' + ic('info', 13) + ' หัวหน้าหน่วยงานตอบรับว่า “ดำเนินการได้ทันที” หรือ “ขอหารือผู้บริหารก่อน” แล้วแนบรูปหลังแก้ไขเพื่อปิดเรื่อง</p>') +
     '</div>';
 
     h += '<div class="ur-stats" style="margin:14px 0">' +
@@ -2984,7 +3051,7 @@
         '<button class="ur-btn sm" style="--tc:#059669" onclick="exportCurrentData()" ' + (total ? '' : 'disabled') + '>' + ic('download', 15) + ' Export Excel (' + total + ')</button>' +
       '</div>' +
       (q ? '<p class="ur-hint" style="margin:-4px 0 10px">ผลการค้นหา “' + esc(q) + '”: พบ ' + total + ' รายการ</p>' : '') +
-      '<h3 class="ur-h3">รายงาน (' + total + ' รายการ)</h3>';
+      '<h3 class="ur-h3">' + esc(word) + ' (' + total + ' รายการ)</h3>';
 
     if (!total) {
       h += '<div class="ur-empty">' + ic('search', 28) + '<div>' + (q ? 'ไม่พบข้อมูลที่ค้นหา' : 'ไม่มีรายงานในช่วงเวลานี้') + '</div></div>';
@@ -3017,12 +3084,24 @@
     }
     h += '</div></div></div>';
 
-    setTimeout(() => {
-      createStatusChart(list, 'statusChart');
-      createUnitChart(list, 'unitChart');
-      if (chart3 === 'worker') createWorkerChart(list, 'workerChart'); else createPlaceChart(list, 'workerChart');
-    }, 60);
+    // รอฟอนต์ Sarabun ของกราฟโหลดก่อน — ไม่งั้นตัวหนังสือในกราฟเป็นฟอนต์มีเชิง (serif)
+    setTimeout(() => chartFontsReady().then(() => {
+      createStatusChart(list, 'statusChart', SEC === 'repair' ? 'สถานะเรื่องแจ้งซ่อม/ข้อเสนอแนะ' : 'สถานะรายงาน');
+      createUnitChart(list, 'unitChart', SEC === 'repair' ? 'Top 10 หน่วยงานที่รับผิดชอบ (แจ้งซ่อม)' : 'Top 10 หน่วยงานที่ถูกรายงาน');
+      if (chart3 === 'worker') createWorkerChart(list, 'workerChart'); else createPlaceChart(list, 'workerChart', placeTitle, SEC === 'repair' ? '#0F766E' : TF === 'NM' ? '#A21CAF' : '#B45309');
+    }), 60);
     return h;
+  }
+
+  let chartFontsP = null;
+  function chartFontsReady() {
+    if (!chartFontsP) {
+      const f = document.fonts;
+      chartFontsP = f && f.load
+        ? Promise.race([Promise.all(['400 12px Sarabun', '700 14px Sarabun'].map(x => f.load(x))), new Promise(r => setTimeout(r, 1500))]).catch(() => {})
+        : Promise.resolve();
+    }
+    return chartFontsP;
   }
 
   function goDashboardPage(page) {
@@ -3032,10 +3111,11 @@
     setTimeout(() => { const el = document.getElementById('dashList'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
   }
   function exportCurrentData() {
-    const list = dashboardFiltered().list;
-    const p = dashboardState.filterPeriod === 'custom' ? (dashboardState.filterStartDate + '-' + dashboardState.filterEndDate) : dashboardState.filterPeriod;
-    const tf = dashboardState.typeFilter && dashboardState.typeFilter !== 'all' ? '-' + dashboardState.typeFilter : '';
-    exportToExcel(list, 'รายงาน-' + p + tf + '.xlsx');
+    const PL = { all: 'ทั้งหมด', today: 'วันนี้', week: '7วันล่าสุด', month: 'เดือนนี้', year: 'ปีนี้' };
+    const p = dashboardState.filterPeriod === 'custom' ? (dashboardState.filterStartDate + '-' + dashboardState.filterEndDate) : (PL[dashboardState.filterPeriod] || 'ทั้งหมด');
+    const F = dashboardFiltered(), list = F.list;
+    const tag = F.sec === 'repair' ? 'แจ้งซ่อม' : 'ความปลอดภัย' + (F.tf !== 'all' ? '-' + F.tf : '');
+    exportToExcel(list, 'รายงาน-' + tag + '-' + p + '.xlsx');
   }
 
   // กราฟผู้ถูกรายงานบ่อย — นับเฉพาะ Unsafe Action (ประเภทอื่นไม่มี “ผู้กระทำ”)
@@ -3055,7 +3135,7 @@
       options: horizontalBarOptions('Top 10 ผู้ถูกรายงานบ่อย (Unsafe Action)')
     });
   }
-  function createPlaceChart(reports, canvasId) {
+  function createPlaceChart(reports, canvasId, title, color) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
     if (dashboardState.chartInstances[canvasId]) dashboardState.chartInstances[canvasId].destroy();
@@ -3067,8 +3147,42 @@
     const top = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
     dashboardState.chartInstances[canvasId] = new Chart(ctx, {
       type: 'bar',
-      data: { labels: top.map(x => x[0]), datasets: [{ label: 'จำนวนครั้ง', data: top.map(x => x[1]), backgroundColor: '#0D9488', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
-      options: horizontalBarOptions('Top 10 พื้นที่/สถานที่ที่ถูกรายงาน')
+      data: { labels: top.map(x => x[0]), datasets: [{ label: 'จำนวนครั้ง', data: top.map(x => x[1]), backgroundColor: color || '#0D9488', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
+      options: horizontalBarOptions(title || 'Top 10 พื้นที่/สถานที่')
+    });
+  }
+  function createStatusChart(reports, canvasId, title) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    if (dashboardState.chartInstances[canvasId]) dashboardState.chartInstances[canvasId].destroy();
+    const n = s => reports.filter(r => r.status === s).length;
+    dashboardState.chartInstances[canvasId] = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['รอมอบหมาย', 'กำลังดำเนินการ', 'รออนุมัติ', 'ปิดงานแล้ว', 'ไม่รับลงทะเบียน'],
+        datasets: [{ data: [n('pending'), n('assigned'), n('resolved'), n('approved'), n('rejected')], backgroundColor: ['#FCD34D', '#FB923C', '#C084FC', '#34D399', '#F87171'] }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Sarabun' } } },
+          title: { display: true, text: title || 'สถานะรายงาน', font: { size: 14, weight: 'bold', family: 'Sarabun' } }
+        }
+      }
+    });
+  }
+  // หน่วยงานที่ได้รับมอบหมาย — ไม่นับเรื่องที่ยังไม่มอบหมาย (ไม่ใช่หน่วยงาน)
+  function createUnitChart(reports, canvasId, title) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    if (dashboardState.chartInstances[canvasId]) dashboardState.chartInstances[canvasId].destroy();
+    const m = {};
+    reports.forEach(r => { const u = String(r.assignedTo || '').trim(); if (u) m[u] = (m[u] || 0) + 1; });
+    const top = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    dashboardState.chartInstances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: top.map(x => x[0]), datasets: [{ label: 'จำนวนรายงาน', data: top.map(x => x[1]), backgroundColor: '#3B82F6', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
+      options: horizontalBarOptions(title || 'Top 10 หน่วยงานที่ถูกรายงาน')
     });
   }
 
@@ -3082,7 +3196,7 @@
       };
       if (state.isAdmin) {
         o['วันที่รายงาน'] = r.createdAt ? new Date(r.createdAt).toLocaleString('th-TH') : '';
-        o['ผู้รายงาน'] = reporterDisplay(r);
+        o['ผู้รายงาน'] = pubName(reporterDisplay(r));
       }
       Object.assign(o, {
         'ผู้ถูกรายงาน/ผู้ประสบเหตุ': t === 'UA' ? pubName(r.workerName) : t === 'NM' ? pubName(r.victimName) : '',
@@ -3122,7 +3236,7 @@
     let b = '<div class="ur-rhead" style="margin-bottom:12px">' + typeChip(r) + statusChip(r) + '</div>';
     b += box('📌 ข้อมูลรายงาน', '<div class="ur-subject"><div><strong>เลขที่:</strong> <span class="ur-mono">' + esc(num || '-') + '</span></div>' +
       '<div><strong>วันที่พบเหตุการณ์:</strong> ' + esc(fmtDate(r.incidentDate)) + '</div>' +
-      (state.isAdmin ? '<div><strong>วันที่รายงาน:</strong> ' + esc(fmtDT(r.createdAt)) + '</div><div><strong>ผู้รายงาน:</strong> ' + esc(reporterDisplay(r)) + ' ' + reporterChip(r) + '</div>' : '') +
+      (state.isAdmin ? '<div><strong>วันที่รายงาน:</strong> ' + esc(fmtDT(r.createdAt)) + '</div><div><strong>ผู้รายงาน:</strong> ' + esc(pubName(reporterDisplay(r))) + ' ' + reporterChip(r) + '</div>' : '') +
       '</div>');
     b += box(t === 'UA' ? '👤 ผู้ถูกรายงาน' : t === 'NM' ? '👤 ผู้ประสบเหตุ / สถานที่' : '📍 พื้นที่/สถานที่', subjectHtml(r, 'ur-subject', maskPublic()));
     b += box('📝 ' + esc(DESC_SPEC[t].label), '<div style="white-space:pre-wrap">' + esc(pubText(r.description, r) || '-') + '</div>');
@@ -4338,8 +4452,10 @@
   }
 
   // ── จับรางวัล: ใช้สถิติชุดเดียวกับตาราง (ไม่นับรายชื่อที่ลบออกจากตาราง) ──
+  // รายชื่อบนวงล้อเซ็นเซอร์นามสกุลตามช่องติ๊กในตาราง (ค่าเริ่มต้น = เซ็นเซอร์ เพราะมักเปิดขึ้นจอในที่ประชุม)
+  function luckyDrawPeople() { return reporterStats(adminStatsReports()).map(x => Object.assign({}, x, { name: pubName(x.name) })); }
   function openLuckyDraw() {
-    dashboardState.luckyDrawData = reporterStats(adminStatsReports());   // ข้อมูลล่าสุดตามช่วงเวลาที่เลือกในตาราง
+    dashboardState.luckyDrawData = luckyDrawPeople();   // ข้อมูลล่าสุดตามช่วงเวลาที่เลือกในตาราง
     dashboardState.luckyDrawActive = true;
     dashboardState.luckyDrawWinners = [];
     dashboardState.luckyDrawRotation = 0;
@@ -4349,7 +4465,7 @@
   }
   function resetLuckyDraw(askConfirm = true) {
     if (askConfirm && !confirm('🔄 ยืนยันการรีเซ็ต?\n\nจะเริ่มจับรางวัลใหม่ (ข้อมูลผู้รายงานจะคงเดิม)')) return;
-    dashboardState.luckyDrawData = reporterStats(adminStatsReports());
+    dashboardState.luckyDrawData = luckyDrawPeople();
     dashboardState.luckyDrawWinners = [];
     dashboardState.luckyDrawRotation = 0;
     dashboardState.luckyDrawSpinning = false;
@@ -4360,7 +4476,7 @@
   // Export สถิติผู้รายงาน (Admin only)
   function exportReporterStats(reports, filename) {
     const data = reporterStats(reports).map((r, i) => ({
-      'อันดับ': i + 1, 'รหัสประจำตัว': r.empId || '', 'คำนำหน้า': r.title || '', 'ชื่อ-นามสกุล': r.name,
+      'อันดับ': i + 1, 'รหัสประจำตัว': r.empId || '', 'คำนำหน้า': r.title || '', 'ชื่อ-นามสกุล': pubName(r.name),
       'หน่วยงาน': r.unit || '', 'จำนวนครั้งที่รายงาน': r.count
     }));
     const wb = XLSX.utils.book_new();
@@ -5217,7 +5333,9 @@
     luckyDrawRotation: 0,
     luckyDrawSpinning: false,
     luckyDrawNumberOfWinners: 1,
+    section: 'safety',
     typeFilter: 'all',
+    censor: true,
     statsShowAll: false
   };
   
@@ -5261,41 +5379,6 @@
   }
   
   // สร้างกราฟแสดงสถานะรายงาน
-  function createStatusChart(reports, canvasId) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return;
-    
-    if (dashboardState.chartInstances[canvasId]) {
-      dashboardState.chartInstances[canvasId].destroy();
-    }
-    
-    const statusCounts = {
-      pending: reports.filter(r => r.status === 'pending').length,
-      assigned: reports.filter(r => r.status === 'assigned').length,
-      resolved: reports.filter(r => r.status === 'resolved').length,
-      approved: reports.filter(r => r.status === 'approved').length,
-      rejected: reports.filter(r => r.status === 'rejected').length
-    };
-    
-    dashboardState.chartInstances[canvasId] = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['รอมอบหมาย', 'กำลังดำเนินการ', 'รออนุมัติ', 'ปิดงานแล้ว', 'ไม่รับลงทะเบียน'],
-        datasets: [{
-          data: [statusCounts.pending, statusCounts.assigned, statusCounts.resolved, statusCounts.approved, statusCounts.rejected],
-          backgroundColor: ['#FCD34D', '#FB923C', '#C084FC', '#34D399', '#F87171']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { family: 'Sarabun' } } },
-          title: { display: true, text: 'สถานะรายงาน', font: { size: 14, weight: 'bold', family: 'Sarabun' } }
-        }
-      }
-    });
-  }
   
   // สร้างกราฟแสดงรายงานแยกตามหน่วยงาน
   // ตรวจว่าเป็นหน้าจอแคบ (มือถือ) หรือไม่
@@ -5370,38 +5453,6 @@
     };
   }
 
-  function createUnitChart(reports, canvasId) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return;
-
-    if (dashboardState.chartInstances[canvasId]) {
-      dashboardState.chartInstances[canvasId].destroy();
-    }
-
-    const unitCounts = {};
-    reports.forEach(report => {
-      const unit = report.assignedTo || 'ยังไม่มอบหมาย';
-      unitCounts[unit] = (unitCounts[unit] || 0) + 1;
-    });
-
-    const sortedUnits = Object.entries(unitCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-
-    dashboardState.chartInstances[canvasId] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: sortedUnits.map(u => u[0]),
-        datasets: [{
-          label: 'จำนวนรายงาน',
-          data: sortedUnits.map(u => u[1]),
-          backgroundColor: '#3B82F6',
-          borderRadius: 3,
-          barPercentage: 0.75,
-          categoryPercentage: 0.85
-        }]
-      },
-      options: horizontalBarOptions('Top 10 หน่วยงานที่ถูกรายงาน')
-    });
-  }
 
   // สร้างกราฟแสดงผู้ถูกรายงานบ่อย
 
