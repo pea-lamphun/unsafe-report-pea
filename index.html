@@ -356,6 +356,7 @@
     @keyframes urToast{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
     /* ท้ายรายการค้นหาผู้รายงาน: ปุ่มกรอกข้อมูลเอง */
     .ur-ta-foot{padding:10px 12px 12px;border-top:1px dashed var(--ur-line);font-size:13px;color:var(--ur-ink3);text-align:center}
+    .ur-dsec:last-child{margin-bottom:0}
 
     /* ── ส่วนหน้า Admin / หน่วยงาน / Dashboard ── */
     /* Tailwind preflight ทำให้ svg เป็น block — ไอคอนในข้อความต้องอยู่ในบรรทัด */
@@ -573,7 +574,7 @@
   
 
   // ================== v3.0 — ประเภทรายงาน · หน่วยงาน · ทะเบียนรายชื่อ ==================
-  const APP_VERSION = '3.1.1';
+  const APP_VERSION = '3.1.2';
 
   // ── หน่วยงาน 10 แห่ง (id ชุดเดียวกับระบบจัดการอุปกรณ์ความปลอดภัยฯ) ──
   const OFFICES = [
@@ -3007,7 +3008,7 @@
         '<span class="ur-dsec-n ur-mono">' + n + '</span></button>';
     const chip = (k, label, n, T) => '<button class="' + (TF === k ? 'on' : '') + '"' + (T ? ' style="--tc:' + T.c + '"' : '') +
       ' onclick="setDashType(\'' + k + '\')">' + label + ' <span class="ur-mono" style="opacity:.75">' + n + '</span></button>';
-    // กราฟที่ 3: UA/ทั้งหมด = ผู้ถูกรายงานบ่อย · UC/NM/แจ้งซ่อม = พื้นที่/สถานที่
+    // กราฟที่ 3: UA/ทั้งหมด = ผู้ถูกรายงาน · UC/NM/แจ้งซ่อม = พื้นที่/สถานที่
     const chart3 = SEC === 'safety' && (TF === 'all' || TF === 'UA') ? 'worker' : 'place';
     const placeTitle = SEC === 'repair' ? 'Top 10 พื้นที่/สถานที่ที่แจ้ง' : TF === 'NM' ? 'Top 10 สถานที่เกิดเหตุ (Near Miss)' : 'Top 10 พื้นที่/สถานที่ที่ตรวจพบ (Unsafe Condition)';
     const word = SEC === 'repair' ? 'เรื่องแจ้งซ่อม/ข้อเสนอแนะ' : TF === 'all' ? 'รายงานด้านความปลอดภัย' : 'รายงาน ' + REPORT_TYPES[TF].chip;
@@ -3026,12 +3027,12 @@
       '</div>' +
       '<div class="ur-dsec" role="group" aria-label="หมวดรายงาน">' +
         secBtn('safety', 'shield', 'รายงานด้านความปลอดภัย', 'Unsafe Action · Unsafe Condition · Near Miss', nSafe, '--sc:#DC2626;--sb:#FEF2F2;--sg:rgba(220,38,38,.14)') +
-        secBtn('repair', 'wrench', 'แจ้งซ่อม/ข้อเสนอแนะ', 'เรื่องทั่วไป — ไม่นับเป็นสถิติความปลอดภัย', nRep, '--sc:#0F766E;--sb:#F0FDFA;--sg:rgba(15,118,110,.14)') +
+        secBtn('repair', 'wrench', 'แจ้งซ่อม/ข้อเสนอแนะ', 'เรื่องทั่วไป', nRep, '--sc:#0F766E;--sb:#F0FDFA;--sg:rgba(15,118,110,.14)') +
       '</div>' +
       (SEC === 'safety'
         ? '<div class="ur-seg ur-seg-type">' + chip('all', 'ทั้ง 3 ประเภท', nSafe, { c: '#1F2937' }) +
             SAFETY_TYPES.map(k => chip(k, esc(REPORT_TYPES[k].chip), F.base.filter(r => typeOf(r) === k).length, REPORT_TYPES[k])).join('') + '</div>'
-        : '<p class="ur-hint" style="margin:0">' + ic('info', 13) + ' หัวหน้าหน่วยงานตอบรับว่า “ดำเนินการได้ทันที” หรือ “ขอหารือผู้บริหารก่อน” แล้วแนบรูปหลังแก้ไขเพื่อปิดเรื่อง</p>') +
+        : '') +
     '</div>';
 
     h += '<div class="ur-stats" style="margin:14px 0">' +
@@ -3119,7 +3120,7 @@
     exportToExcel(list, 'รายงาน-' + tag + '-' + p + '.xlsx');
   }
 
-  // กราฟผู้ถูกรายงานบ่อย — นับเฉพาะ Unsafe Action (ประเภทอื่นไม่มี “ผู้กระทำ”)
+  // กราฟผู้ถูกรายงาน — นับเฉพาะ Unsafe Action (ประเภทอื่นไม่มี “ผู้กระทำ”)
   function createWorkerChart(reports, canvasId) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
@@ -3133,7 +3134,7 @@
     dashboardState.chartInstances[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: { labels: top.map(x => pubName(x[0]) || x[0]), datasets: [{ label: 'จำนวนครั้ง', data: top.map(x => x[1]), backgroundColor: '#EF4444', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }] },
-      options: horizontalBarOptions('Top 10 ผู้ถูกรายงานบ่อย (Unsafe Action)')
+      options: horizontalBarOptions('Top 10 ผู้ถูกรายงาน (Unsafe Action)')
     });
   }
   function createPlaceChart(reports, canvasId, title, color) {
@@ -3245,18 +3246,17 @@
     if (r.assignedTo) {
       b += box('🏢 หน่วยงานรับผิดชอบ', '<div><strong>หน่วยงาน:</strong> ' + esc(r.assignedTo) + '</div><div><strong>มอบหมายเมื่อ:</strong> ' + esc(fmtDT(r.assignedAt)) + '</div>' +
         repairRespHtml(r) +
-        (RESOLVE_SPEC[t].print && (state.isAdmin || unitAuthed()) ? '<button class="ur-btn block" style="--tc:#2563EB;margin-top:10px" onclick="printWarningLetter(' + ja(r.id) + ')">' + ic('print', 16) + ' พิมพ์ใบแจ้งเตือน</button>' +
-          '<p class="ur-hint" style="text-align:center">พิมพ์ได้ตลอดเวลา แม้จะแนบรูปแก้ไขแล้ว</p>'
-          : RESOLVE_SPEC[t].print ? '<p class="ur-hint" style="margin-top:8px">' + ic('lock', 13) + ' ใบแจ้งเตือนมีชื่อเต็ม — พิมพ์ได้จากเมนู “สำหรับ หัวหน้าหน่วยงาน” (ใส่รหัสผ่าน) หรือ Admin</p>' : ''));
+        (RESOLVE_SPEC[t].print && (state.isAdmin || unitAuthed())
+          ? '<button class="ur-btn block" style="--tc:#2563EB;margin-top:10px" onclick="printWarningLetter(' + ja(r.id) + ')">' + ic('print', 16) + ' พิมพ์ใบแจ้งเตือน</button>' : ''));
     }
     const groups = resolveGroups(r);
     // ใบแจ้งเตือนที่ลงนามแล้วมีชื่อเต็ม+ลายเซ็น → คนทั่วไปเห็นแค่ว่าแนบแล้ว (ดูรูปได้ที่หน้า Admin / หัวหน้าหน่วยงาน)
     const lockLetters = maskPublic() && RESOLVE_SPEC[t].print;
     if (groups.length) {
-      b += box('🔧 หลักฐานการแก้ไข', groups.map(g => '<div class="ur-attach-t" style="margin-top:6px">' + esc(g.t) + ' (' + g.imgs.length + ' รูป)</div>' +
-          (lockLetters && g.k !== 'fix'
-            ? '<p class="ur-hint" style="margin:2px 0 6px">' + ic('lock', 13) + ' แนบแล้ว — มีชื่อเต็มและลายเซ็น ดูได้ที่หน้า Admin หรือเมนู “สำหรับ หัวหน้าหน่วยงาน”</p>'
-            : detailImgs(g.imgs, g.k === 'fix' ? 'รูปหลังแก้ไข' : 'รูปแก้ไข', num))).join('') +
+      b += box('🔧 หลักฐานการแก้ไข', groups.map(g => lockLetters && g.k !== 'fix'
+          ? '<div class="ur-attach-t" style="margin-top:6px">' + esc(g.t) + ' — แนบแล้ว ' + g.imgs.length + ' รูป</div>'
+          : '<div class="ur-attach-t" style="margin-top:6px">' + esc(g.t) + ' (' + g.imgs.length + ' รูป)</div>' +
+            detailImgs(g.imgs, g.k === 'fix' ? 'รูปหลังแก้ไข' : 'รูปแก้ไข', num)).join('') +
         (r.resolveNote ? '<div style="margin-top:8px"><strong>หมายเหตุ:</strong> ' + esc(pubText(r.resolveNote, r)) + '</div>' : '') +
         '<div><strong>แนบรูปเมื่อ:</strong> ' + esc(fmtDT(r.resolvedAt)) + '</div>', 'ok');
     }
@@ -3268,6 +3268,27 @@
             '<button class="ur-btn neutral" onclick="closeReportDetailModal()">ปิด</button>' });
   }
   function closeReportDetailModal() { closeModal('reportDetailModal'); }
+
+  // ชื่อบนแกนกราฟ: วัดความกว้างจริงด้วยฟอนต์ของกราฟ — ยาวเกินให้ตัดคำนำหน้า (นาย/นาง/นางสาว) ก่อน แล้วค่อยย่อด้วย “…”
+  let fitCtx = null;
+  function fitLabel(text, maxW, size) {
+    const s = String(text == null ? '' : text);
+    try {
+      if (!fitCtx) fitCtx = document.createElement('canvas').getContext('2d');
+      fitCtx.font = (size || 11) + 'px Sarabun, sans-serif';
+      const w = t => fitCtx.measureText(t).width;
+      if (w(s) <= maxW) return s;
+      const t = stripPrefix(s);
+      if (w(t) <= maxW) return t;
+      let lo = 1, hi = t.length;
+      while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (w(t.slice(0, mid) + '…') <= maxW) lo = mid; else hi = mid - 1; }
+      // ไม่ตัดแยกสระบน/ล่างและวรรณยุกต์ออกจากพยัญชนะ (เครื่องหมายพวกนี้ไม่กินความกว้าง)
+      let cut = lo; while (cut < t.length && /[ัิ-ฺ็-๎]/.test(t[cut])) cut++;
+      return t.slice(0, cut) + '…';
+    } catch (e) {
+      return s.length > 24 ? s.slice(0, 23) + '…' : s;
+    }
+  }
   
   // ================== EVENT HANDLERS ==================
   // ================== การนำทาง + ปุ่มย้อนกลับของเครื่อง ==================
@@ -5449,7 +5470,7 @@
             padding: 6,
             font: { family: 'Sarabun', size: fontSize },
             callback: function(value) {
-              return truncateLabel(this.getLabelForValue(value), maxChars);
+              return fitLabel(this.getLabelForValue(value), labelWidth - 8, fontSize);
             }
           },
           grid: { display: false, drawBorder: false }
