@@ -357,6 +357,14 @@
     /* ท้ายรายการค้นหาผู้รายงาน: ปุ่มกรอกข้อมูลเอง */
     .ur-ta-foot{padding:10px 12px 12px;border-top:1px dashed var(--ur-line);font-size:13px;color:var(--ur-ink3);text-align:center}
     .ur-dsec:last-child{margin-bottom:0}
+    /* หน้าสรุป: กลุ่มแผนก (แถวหัวกลุ่ม + แถบสีซ้าย + ป้ายแผนก) */
+    .ur-sumtbl tr.ur-grp td{background:var(--gb);color:var(--gf);padding-top:7px;padding-bottom:7px;border-top:2px solid #fff;border-bottom:none;font-weight:700}
+    .ur-sumtbl tbody tr.ur-grp:hover td{background:var(--gb)}
+    .ur-sumtbl tr.ur-grp td:first-child,.ur-sumtbl td.ur-gs{box-shadow:inset 4px 0 0 var(--gs)}
+    .ur-sumtbl tr.ur-grp .num{color:var(--gf)}
+    .ur-dchip{display:inline-block;padding:1px 10px;border-radius:99px;font-size:12.5px;font-weight:700;background:#fff;color:var(--gf);border:1px solid var(--gs);white-space:nowrap}
+    .ur-dchip.sm{padding:0 8px;font-size:12px;font-weight:600;background:var(--gb);border-color:transparent}
+    .ur-grp-n{font-size:12px;font-weight:600;opacity:.8;margin-left:4px}
 
     /* ── ส่วนหน้า Admin / หน่วยงาน / Dashboard ── */
     /* Tailwind preflight ทำให้ svg เป็น block — ไอคอนในข้อความต้องอยู่ในบรรทัด */
@@ -574,7 +582,7 @@
   
 
   // ================== v3.0 — ประเภทรายงาน · หน่วยงาน · ทะเบียนรายชื่อ ==================
-  const APP_VERSION = '3.1.2';
+  const APP_VERSION = '3.1.3';
 
   // ── หน่วยงาน 10 แห่ง (id ชุดเดียวกับระบบจัดการอุปกรณ์ความปลอดภัยฯ) ──
   const OFFICES = [
@@ -2600,7 +2608,48 @@
     });
     return m;
   }
-  // แถวของหน่วยงาน: ทุกคนในทะเบียน (เรียงแบบระบบจัดการอุปกรณ์ฯ) + คนกรอกชื่อเองที่ระบุหน่วยงานนี้
+  // ── แผนก: ลำดับและสีในหน้าสรุป ──
+  //  กฟจ.ลำพูน: ระดับการไฟฟ้า → ผปบ. → ผกส. → ผมต. → ผบส. → ผคพ. → ผบร. → ผสน.
+  //  กฟส.S:      ระดับการไฟฟ้า → ผปร. → ผบค. → ผบง.
+  const SUM_DEPTS = ['ผปบ.', 'ผกส.', 'ผมต.', 'ผบส.', 'ผคพ.', 'ผบร.', 'ผสน.', 'ผปร.', 'ผบค.', 'ผบง.'];
+  // [พื้น, ตัวอักษร, แถบสี]
+  const SUM_DEPT_COLOR = {
+    office: ['#E2E8F0', '#334155', '#64748B'],
+    'ผปบ.': ['#DBEAFE', '#1E40AF', '#3B82F6'], 'ผกส.': ['#FFEDD5', '#9A3412', '#F97316'], 'ผมต.': ['#EDE9FE', '#5B21B6', '#8B5CF6'],
+    'ผบส.': ['#CCFBF1', '#115E59', '#14B8A6'], 'ผคพ.': ['#FEF3C7', '#92400E', '#F59E0B'], 'ผบร.': ['#FCE7F3', '#9D174D', '#EC4899'],
+    'ผสน.': ['#DCFCE7', '#166534', '#22C55E'],
+    'ผปร.': ['#DBEAFE', '#1E40AF', '#3B82F6'], 'ผบค.': ['#CCFBF1', '#115E59', '#14B8A6'], 'ผบง.': ['#FEF3C7', '#92400E', '#F59E0B'],
+    other: ['#F3F4F6', '#4B5563', '#9CA3AF']
+  };
+  function sumDeptKey(d) {
+    const t = String(d || '').trim();
+    if (!t) return 'none';
+    // ระบุแผนกไว้ (รวมแบบ “กฟจ.ลำพูน ผกส.” ของคนกรอกชื่อเอง) → ใช้แผนก · ไม่มีแผนก แต่เป็นชื่อการไฟฟ้า → ระดับการไฟฟ้า
+    const code = SUM_DEPTS.find(c => t === c || t.indexOf(c) === 0 || t.indexOf(' ' + c) >= 0);
+    if (code) return code;
+    return isOfficeLevel(t) ? 'office' : 'other:' + t;
+  }
+  function sumDeptRank(k) {
+    if (k === 'office') return 0;
+    const i = SUM_DEPTS.indexOf(k);
+    return i >= 0 ? 1 + i : k === 'none' ? 99 : 50;
+  }
+  function sumDeptLabel(d, k) {
+    if (k === 'none') return 'ไม่ระบุแผนก';
+    return k === 'office' || k.indexOf('other:') === 0 ? String(d || '').trim() : k;
+  }
+  function sumDeptVars(k) {
+    const c = SUM_DEPT_COLOR[k] || SUM_DEPT_COLOR.other;
+    return '--gb:' + c[0] + ';--gf:' + c[1] + ';--gs:' + c[2];
+  }
+  // จัดแผนกเดียวกันให้อยู่ติดกันตามลำดับข้างบน — ภายในแผนกเรียงตำแหน่งแบบระบบจัดการอุปกรณ์ฯ
+  function sortByDept(rows) {
+    return rows.map((r, i) => ({ r, i, k: sumDeptKey(r.department) }))
+      .sort((a, b) => sumDeptRank(a.k) - sumDeptRank(b.k) || (a.k < b.k ? -1 : a.k > b.k ? 1 : 0) || a.i - b.i)
+      .map(x => x.r);
+  }
+
+  // แถวของหน่วยงาน: ทุกคนในทะเบียน + คนกรอกชื่อเองที่ระบุหน่วยงานนี้ — จัดกลุ่มตามแผนก
   function summaryRows(oid, C) {
     const rows = sortPersonnel(peopleList(oid)).map(p => {
       const x = C['emp:' + p.key] || { UA: 0, UC: 0, NM: 0, total: 0 };
@@ -2613,7 +2662,7 @@
       rows.push({ key: '', empId: x.who.empId || '', name: x.who.name, position: x.who.position || '', department: x.who.department || x.who.unit || '',
                   UA: x.UA, UC: x.UC, NM: x.NM, total: x.total, inReg: false });
     });
-    return rows;
+    return sortByDept(rows);
   }
   function summaryOverview(C) {
     const tabs = OFFICES.map(o => o.id);
@@ -2629,18 +2678,33 @@
   function summaryTableHtml(rows) {
     const q = summaryState.q.trim().toLowerCase();
     let list = rows;
-    if (q) list = list.filter(r => String(pubName(r.name)).toLowerCase().indexOf(q) >= 0 || String(r.empId).toLowerCase().indexOf(q) >= 0 || String(r.position).toLowerCase().indexOf(q) >= 0);
+    if (q) list = list.filter(r => String(pubName(r.name)).toLowerCase().indexOf(q) >= 0 || String(r.empId).toLowerCase().indexOf(q) >= 0 || String(r.position).toLowerCase().indexOf(q) >= 0 || String(r.department).toLowerCase().indexOf(q) >= 0);
     if (summaryState.onlyActive) list = list.filter(r => r.total > 0);
     if (!list.length) return '<div class="ur-empty">' + ic('users', 28) + '<div>' + (rows.length ? 'ไม่พบรายชื่อตามเงื่อนไข' : 'ยังไม่มีรายชื่อในหน่วยงานนี้ — เพิ่มได้ที่เมนู “จัดการรายชื่อ”') + '</div></div>';
     const n = v => '<td class="num' + (v ? '' : ' zero') + '">' + v + '</td>';
-    return '<div class="ur-tblwrap" style="max-height:66vh"><table class="ur-tbl"><thead><tr><th class="c" style="width:44px">#</th><th style="width:96px">รหัส</th><th>ชื่อ-นามสกุล</th>' +
-      '<th style="width:130px">ตำแหน่ง</th><th class="c" style="width:58px" title="Unsafe Action">UA</th><th class="c" style="width:58px" title="Unsafe Condition">UC</th>' +
-      '<th class="c" style="width:58px" title="Near Miss">NM</th><th class="c" style="width:64px">รวม</th></tr></thead><tbody>' +
-      list.map((r, i) => '<tr><td class="num" style="color:#9CA3AF">' + (i + 1) + '</td><td class="ur-mono" style="font-size:12.5px">' + esc(r.empId || '-') + '</td>' +
-        '<td><b>' + esc(pubName(r.name)) + '</b>' + (r.inReg ? '' : ' <span class="ur-chip sm warn">ไม่อยู่ในทะเบียน</span>') + '</td>' +
-        '<td class="muted">' + esc([r.position, r.department].filter(Boolean).join(' · ') || '-') + '</td>' +
-        n(r.UA) + n(r.UC) + n(r.NM) + '<td class="num"' + (r.total ? ' style="color:#4338CA;font-size:15px"' : '') + '>' + (r.total || '<span class="zero">0</span>') + '</td></tr>').join('') +
-      '</tbody></table></div><div class="ur-hint">แสดง ' + list.length + ' คน</div>';
+    const groups = [];
+    list.forEach(r => {
+      const k = sumDeptKey(r.department);
+      let g = groups[groups.length - 1];
+      if (!g || g.k !== k) { g = { k, label: sumDeptLabel(r.department, k), rows: [] }; groups.push(g); }
+      g.rows.push(r);
+    });
+    const sum = (rs, f) => rs.reduce((a, r) => a + r[f], 0);
+    let no = 0;
+    const body = groups.map(g => {
+      const v = sumDeptVars(g.k), T = sum(g.rows, 'total');
+      return '<tr class="ur-grp" style="' + v + '"><td colspan="5"><span class="ur-dchip">' + esc(g.label) + '</span> <span class="ur-grp-n">' + g.rows.length + ' คน</span></td>' +
+          '<td class="num">' + sum(g.rows, 'UA') + '</td><td class="num">' + sum(g.rows, 'UC') + '</td><td class="num">' + sum(g.rows, 'NM') + '</td><td class="num">' + T + '</td></tr>' +
+        g.rows.map(r => '<tr style="' + v + '"><td class="num ur-gs" style="color:#9CA3AF">' + (++no) + '</td><td class="ur-mono" style="font-size:12.5px">' + esc(r.empId || '-') + '</td>' +
+          '<td><b>' + esc(pubName(r.name)) + '</b>' + (r.inReg ? '' : ' <span class="ur-chip sm warn">ไม่อยู่ในทะเบียน</span>') + '</td>' +
+          '<td class="muted">' + esc(r.position || '-') + '</td>' +
+          '<td><span class="ur-dchip sm">' + esc(sumDeptLabel(r.department, g.k)) + '</span></td>' +
+          n(r.UA) + n(r.UC) + n(r.NM) + '<td class="num"' + (r.total ? ' style="color:#4338CA;font-size:15px"' : '') + '>' + (r.total || '<span class="zero">0</span>') + '</td></tr>').join('');
+    }).join('');
+    return '<div class="ur-tblwrap" style="max-height:66vh"><table class="ur-tbl ur-sumtbl"><thead><tr><th class="c" style="width:44px">#</th><th style="width:96px">รหัส</th><th>ชื่อ-นามสกุล</th>' +
+      '<th style="width:120px">ตำแหน่ง</th><th style="width:104px">แผนก</th><th class="c" style="width:56px" title="Unsafe Action">UA</th><th class="c" style="width:56px" title="Unsafe Condition">UC</th>' +
+      '<th class="c" style="width:56px" title="Near Miss">NM</th><th class="c" style="width:60px">รวม</th></tr></thead><tbody>' + body +
+      '</tbody></table></div><div class="ur-hint">แสดง ' + list.length + ' คน · ' + groups.length + ' แผนก</div>';
   }
   function summarySearch(v) {
     summaryState.q = String(v || '');
@@ -2712,7 +2776,7 @@
     ws0['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 11 }, { wch: 8 }];
     XLSX.utils.book_append_sheet(wb, ws0, 'ภาพรวม');
     ov.forEach(o => {
-      const rows = summaryRows(o.oid, C).map((r, i) => ({ 'ลำดับ': i + 1, 'รหัสประจำตัว': r.empId, 'ชื่อ-นามสกุล': pubName(r.name), 'ตำแหน่ง': r.position, 'สังกัด': r.department,
+      const rows = summaryRows(o.oid, C).map((r, i) => ({ 'ลำดับ': i + 1, 'รหัสประจำตัว': r.empId, 'ชื่อ-นามสกุล': pubName(r.name), 'ตำแหน่ง': r.position, 'แผนก': r.department,
         'Unsafe Action': r.UA, 'Unsafe Condition': r.UC, 'Near Miss': r.NM, 'รวม': r.total, 'หมายเหตุ': r.inReg ? '' : 'ไม่อยู่ในทะเบียน' }));
       const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ 'ลำดับ': '', 'รหัสประจำตัว': '', 'ชื่อ-นามสกุล': '(ไม่มีรายชื่อ)' }]);
       ws['!cols'] = [{ wch: 7 }, { wch: 14 }, { wch: 30 }, { wch: 18 }, { wch: 12 }, { wch: 13 }, { wch: 15 }, { wch: 10 }, { wch: 7 }, { wch: 16 }];
